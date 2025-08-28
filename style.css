@@ -1,0 +1,109 @@
+/* Background with gradient */
+body {
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+/* Centered Card Container */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  box-shadow: 0px 10px 40px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+}
+.container:hover {
+  transform: translateY(-5px);
+}
+
+/* Headings */
+h1 {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #ff006e;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Input Fields */
+input, select {
+  border: none;
+  outline: none;
+  padding: 10px;
+  border-radius: 12px;
+  margin: 5px;
+  background: #fff;
+  box-shadow: inset 3px 3px 6px rgba(0,0,0,0.1), 
+              inset -3px -3px 6px rgba(255,255,255,0.8);
+  transition: 0.3s ease;
+}
+input:focus, select:focus {
+  transform: scale(1.05);
+  box-shadow: 0px 0px 10px #ff006e;
+}
+
+/* 3D Buttons */
+button {
+  background: linear-gradient(135deg, #ff006e, #ff7eb3);
+  border: none;
+  color: white;
+  padding: 12px 20px;
+  margin: 10px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 6px 15px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  transform-style: preserve-3d;
+}
+button:hover {
+  transform: scale(1.1) rotateX(10deg);
+  box-shadow: 0px 12px 20px rgba(0,0,0,0.3);
+}
+button:active {
+  transform: scale(0.95) rotateX(-5deg);
+  box-shadow: 0px 6px 10px rgba(0,0,0,0.2);
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 15px;
+  overflow: hidden;
+  background: white;
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.1);
+}
+th {
+  background: linear-gradient(135deg, #ff006e, #ff7eb3);
+  color: white;
+  padding: 12px;
+  font-size: 1rem;
+}
+td {
+  padding: 10px;
+  text-align: center;
+  font-size: 0.95rem;
+  border-bottom: 1px solid #eee;
+}
+tr:hover {
+  background: #ffe6f0;
+  transition: 0.3s;
+}
+
+/* Status Badges */
+.status-completed {
+  color: green;
+  font-weight: bold;
+}
+.status-pending {
+  color: red;
+  font-weight: bold;
+}

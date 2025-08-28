@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bill Entry</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+      background: radial-gradient(circle at top left, #1a1a1a, #000000 70%),
+                  radial-gradient(circle at bottom right, #330000, #1a0000 80%);
+      color: #f5f5f5;
+      background-attachment: fixed;
+      background-blend-mode: screen;
+      text-align: center;
+    }
+
+    h2, h3 {
+      color: #ff4d4d;
+      text-shadow: 0px 0px 6px rgba(255, 0, 0, 0.7);
+    }
+
+    .container {
+      margin: 20px;
+      padding: 20px;
+      background-color: rgba(230, 230, 230, 0.95);
+      border-radius: 12px;
+      box-shadow: 0px 0px 15px rgba(255, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      color: #111;
+    }
+
+    input, select, button, textarea {
+      margin: 5px;
+      padding: 8px;
+      border: 1px solid #bbb;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: #e6e6e6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      color: #111;
+    }
+
+    th {
+      background-color: #d6a3b0;
+      color: #111;
+    }
+
+    .summary {
+      font-weight: bold;
+    }
+
+    button {
+      background: linear-gradient(145deg, #ff1a1a, #b30000);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0px 5px 0px #660000, 0px 10px 15px rgba(0, 0, 0, 0.6);
+    }
+
+    button:active {
+      transform: translateY(3px);
+      box-shadow: 0px 2px 0px #660000, 0px 5px 10px rgba(0, 0, 0, 0.6);
+    }
+
+    .status-btn {
+      margin-left: 5px;
+      padding: 3px 6px;
+      font-size: 12px;
+      border-radius: 5px;
+      background: linear-gradient(145deg, #ff4d4d, #b30000);
+      box-shadow: 0px 3px 0px #660000;
+    }
+
+    .status-completed {
+      color: green;
+      font-weight: bold;
+      text-shadow: 0px 0px 3px #66ff66;
+    }
+
+    .status-pending {
+      color: red;
+      font-weight: bold;
+      text-shadow: 0px 0px 3px #ff4d4d;
+    }
+
+    #totalSummary {
+      font-size: 16px;
+      font-weight: bold;
+      padding: 10px;
+      background-color: #fff8f8;
+      border-radius: 8px;
+      box-shadow: 0px 0px 8px rgba(255, 0, 0, 0.3);
+      margin-top: -10px;
+      margin-bottom: 20px;
+    }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <h2>Bill Entry</h2>
+  <button onclick="downloadOrdersPDF()">🧾 Download Orders PDF</button>
+
+  <div class="container">
+    <label>⚙ Configure Years and Trolley Types</label><br>
+    <select id="filterYear"><option value="">Select Year</option></select>
+    <select id="filterTrolley">
+      <option value="">All Trolleys</option>
+      <option value="2 wheel">2 wheel</option>
+      <option value="4 wheel">4 wheel</option>
+      <option value="2 wheel hyd">2 wheel hyd</option>
+      <option value="4 wheel hyd">4 wheel hyd</option>
+      <option value="4 wheel (y=26)">4 wheel (y=26)</option>
+      <option value="2 wheel hyd (y=26)">2 wheel hyd (y=26)</option>
+      <option value="4 wheel hyd (y=26)">4 wheel hyd (y=26)</option>
+    </select>
+    <button onclick="applyFilters()">Apply</button><br><br>
+
+    <input type="text" id="searchInput" placeholder="🔍 Search by Name, Village, Trolley Type"><br>
+    <input type="text" id="personName" placeholder="Person Name">
+    <input type="text" id="village" placeholder="Village">
+    <select id="trolley">
+      <option value="4 wheel">4 wheel</option>
+      <option value="2 wheel hyd">2 wheel hyd</option>
+      <option value="4 wheel hyd">4 wheel hyd</option>
+      <option value="4 wheel (y=26)">4 wheel (y=26)</option>
+      <option value="2 wheel hyd (y=26)">2 wheel hyd (y=26)</option>
+      <option value="4 wheel hyd (y=26)">4 wheel hyd (y=26)</option>
+    </select>
+    <select id="color">
+      <option value=" RED"> RED</option>
+      <option value="GREEN">GREEN</option>
+      <option value="BLUE">BLUE</option>
+      <option value="DEEP ORANGE">DEEP ORANGE</option>
+      <option value="NOT MENTIONED">NOT MENTIONED</option>
+    </select><br>
+    <input type="text" id="billNumber" placeholder="Bill Number">
+    <input type="date" id="billDate">
+    <input type="number" id="totalAmount" placeholder="Total Amount ₹">
+    <input type="number" id="amountPaid" placeholder="Amount Paid ₹"><br>
+    <textarea id="description" maxlength="2000" placeholder="Description (optional)" rows="2" cols="60"></textarea><br>
+    <button onclick="addEntry()">Add Entry</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>Village</th><th>Trolley</th><th>Colour</th><th>Bill No.</th>
+          <th>Date</th><th>Total Amount</th><th>Amount Paid</th><th>Pending Amount</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="entryTableBody"></tbody>
+    </table>
+
+    <h3>Orders Summary by Year and Trolley Type</h3>
+    <table>
+      <thead>
+        <tr><th>Trolley / Year</th><th>Total Amount ₹</th><th>Amount Paid ₹</th><th>Pending Amount ₹</th></tr>
+      </thead>
+      <tbody id="summaryTableBody"></tbody>
+    </table>
+
+    <!-- ✅ NEW TOTAL SECTION ADDED -->
+    <h3>Total Summary</h3>
+    <div id="totalSummary"></div>
+
+    <h3>Order Status Summary</h3>
+    <table>
+      <thead><tr><th>Total Orders</th><th>Completed Orders</th><th>Pending Orders</th></tr></thead>
+      <tbody>
+        <tr><td id="totalOrders">0</td><td id="completedOrders">0</td><td id="pendingOrders">0</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let entries = JSON.parse(localStorage.getItem("billEntries")) || [];
+    document.getElementById("billDate").value = new Date().toISOString().substr(0, 10);
+
+    function addEntry() {
+      const personName = document.getElementById("personName").value.trim();
+      const village = document.getElementById("village").value.trim();
+      const trolley = document.getElementById("trolley").value;
+      const color = document.getElementById("color").value;
+      const billNumber = document.getElementById("billNumber").value.trim();
+      const billDate = document.getElementById("billDate").value;
+      const totalAmount = parseFloat(document.getElementById("totalAmount").value);
+      const amountPaid = parseFloat(document.getElementById("amountPaid").value);
+      const description = document.getElementById("description").value.trim();
+
+      if (!personName || !village || !billNumber || !billDate || isNaN(totalAmount) || isNaN(amountPaid)) {
+        alert("Please fill all fields correctly.");
+        return;
+      }
+
+      const entry = {
+        id: Date.now(),
+        personName, village, trolley, color, billNumber, billDate,
+        totalAmount, amountPaid,
+        pendingAmount: totalAmount - amountPaid,
+        status: totalAmount - amountPaid === 0 ? "Completed" : "Pending",
+        description
+      };
+
+      entries.push(entry);
+      localStorage.setItem("billEntries", JSON.stringify(entries));
+      renderEntries();
+      clearForm();
+    }
+
+    function renderEntries(filtered = null) {
+      const data = filtered || entries;
+      const tbody = document.getElementById("entryTableBody");
+      tbody.innerHTML = "";
+
+      data.forEach(entry => {
+        const statusClass = entry.status === "Completed" ? "status-completed" : "status-pending";
+        const toggleText = entry.status === "Completed" ? "Mark Pending" : "Mark Completed";
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${entry.personName}</td><td>${entry.village}</td><td>${entry.trolley}</td>
+          <td>${entry.color}</td><td>${entry.billNumber}</td>
+          <td><input type="date" value="${entry.billDate}" onchange="updateDate(${entry.id}, this.value)"></td>
+          <td>${entry.totalAmount.toFixed(2)}</td><td>${entry.amountPaid.toFixed(2)}</td>
+          <td>${entry.pendingAmount.toFixed(2)}</td>
+          <td id="status-${entry.id}">
+            <span class="${statusClass}">${entry.status}</span>
+            <button onclick="toggleStatus(${entry.id})" class="status-btn">${toggleText}</button>
+          </td>
+          <td>
+            <button onclick="editEntry(${entry.id})">Edit</button>
+            <button onclick="deleteEntry(${entry.id})">Delete</button><br>
+            <small><em>${entry.description || ''}</em></small>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      renderSummary(data);
+      renderOrderStatus(data);
+      populateYearFilter();
+      renderSummaryTotals(); // ✅ NEW: Show total sum
+    }
+
+    function renderSummary(data) {
+      const summaryMap = {};
+      data.forEach(entry => {
+        const year = new Date(entry.billDate).getFullYear();
+        const key = `${entry.trolley} / ${year}`;
+        if (!summaryMap[key]) summaryMap[key] = { total: 0, paid: 0, pending: 0 };
+        summaryMap[key].total += entry.totalAmount;
+        summaryMap[key].paid += entry.amountPaid;
+        summaryMap[key].pending += entry.pendingAmount;
+      });
+
+      const tbody = document.getElementById("summaryTableBody");
+      tbody.innerHTML = "";
+      for (const key in summaryMap) {
+        const row = summaryMap[key];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${key}</td>
+          <td>₹ ${row.total.toFixed(2)}</td><td>₹ ${row.paid.toFixed(2)}</td><td>₹ ${row.pending.toFixed(2)}</td>`;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function renderSummaryTotals() {
+      const summaryTable = document.getElementById("summaryTableBody");
+      let totalAmount = 0;
+      let amountPaid = 0;
+      let pendingAmount = 0;
+
+      for (let i = 0; i < summaryTable.rows.length; i++) {
+        const row = summaryTable.rows[i];
+        totalAmount += parseFloat(row.cells[1].textContent.replace(/[₹, ]/g, '')) || 0;
+        amountPaid += parseFloat(row.cells[2].textContent.replace(/[₹, ]/g, '')) || 0;
+        pendingAmount += parseFloat(row.cells[3].textContent.replace(/[₹, ]/g, '')) || 0;
+      }
+
+      document.getElementById("totalSummary").innerHTML = `
+        🧾 <span style="color: #b30000;">Total Amount ₹:</span> ₹ ${totalAmount.toLocaleString()}<br>
+        💰 <span style="color: green;">Amount Paid ₹:</span> ₹ ${amountPaid.toLocaleString()}<br>
+        🕗 <span style="color: red;">Pending Amount ₹:</span> ₹ ${pendingAmount.toLocaleString()}
+      `;
+    }
+
+    function updateDate(id, newDate) {
+      const entry = entries.find(e => e.id === id);
+      if (entry) {
+        entry.billDate = newDate;
+        localStorage.setItem("billEntries", JSON.stringify(entries));
+        renderEntries();
+      }
+    }
+
+    function editEntry(id) {
+      const e = entries.find(item => item.id === id);
+      if (!e) return;
+      document.getElementById("personName").value = e.personName;
+      document.getElementById("village").value = e.village;
+      document.getElementById("trolley").value = e.trolley;
+      document.getElementById("color").value = e.color;
+      document.getElementById("billNumber").value = e.billNumber;
+      document.getElementById("billDate").value = e.billDate;
+      document.getElementById("totalAmount").value = e.totalAmount;
+      document.getElementById("amountPaid").value = e.amountPaid;
+      document.getElementById("description").value = e.description || "";
+      deleteEntry(id);
+    }
+
+    function toggleStatus(id) {
+      const e = entries.find(item => item.id === id);
+      if (!e) return;
+      if (e.status === "Completed") {
+        e.status = "Pending";
+        e.pendingAmount = e.totalAmount - e.amountPaid;
+      } else {
+        e.status = "Completed";
+        e.amountPaid = e.totalAmount;
+        e.pendingAmount = 0;
+      }
+      localStorage.setItem("billEntries", JSON.stringify(entries));
+      renderEntries();
+    }
+
+    function deleteEntry(id) {
+      entries = entries.filter(e => e.id !== id);
+      localStorage.setItem("billEntries", JSON.stringify(entries));
+      renderEntries();
+    }
+
+    function clearForm() {
+      document.getElementById("personName").value = "";
+      document.getElementById("village").value = "";
+      document.getElementById("billNumber").value = "";
+      document.getElementById("billDate").value = new Date().toISOString().substr(0, 10);
+      document.getElementById("totalAmount").value = "";
+      document.getElementById("amountPaid").value = "";
+      document.getElementById("description").value = "";
+    }
+
+    function renderOrderStatus(data) {
+      const total = data.length;
+      const completed = data.filter(e => e.status === "Completed").length;
+      const pending = total - completed;
+      document.getElementById("totalOrders").textContent = total;
+      document.getElementById("completedOrders").textContent = completed;
+      document.getElementById("pendingOrders").textContent = pending;
+    }
+
+    function populateYearFilter() {
+      const sel = document.getElementById("filterYear");
+      sel.innerHTML = '<option value="">Select Year</option>';
+      for (let y = 2025; y <= 2030; y++) {
+        const opt = document.createElement("option");
+        opt.value = y;
+        opt.textContent = y;
+        sel.appendChild(opt);
+      }
+    }
+
+    function applyFilters() {
+      const year = document.getElementById("filterYear").value;
+      const trolley = document.getElementById("filterTrolley").value;
+      let filtered = [...entries];
+      if (year) filtered = filtered.filter(e => new Date(e.billDate).getFullYear().toString() === year);
+      if (trolley) filtered = filtered.filter(e => e.trolley === trolley);
+      renderEntries(filtered);
+    }
+
+    document.getElementById("searchInput").addEventListener("input", function () {
+      const keyword = this.value.toLowerCase();
+      renderEntries(entries.filter(e =>
+        e.personName.toLowerCase().includes(keyword) ||
+        e.village.toLowerCase().includes(keyword) ||
+        e.trolley.toLowerCase().includes(keyword)
+      ));
+    });
+
+    function downloadOrdersPDF() {
+      const table = document.querySelector("table");
+      const opt = {
+        margin: 0.5,
+        filename: 'Orders.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().from(table).set(opt).save();
+    }
+
+    renderEntries();
+  </script>
+</body>
+</html>
